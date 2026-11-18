@@ -1,1 +1,1 @@
-from .tasks.models import Task  # noqa: F401
+from tasks.models import Task, User  # noqa: F401

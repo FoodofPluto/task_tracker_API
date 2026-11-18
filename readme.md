@@ -70,3 +70,16 @@ Path	Method	Purpose	Visibility	Success	Errors (400/401/403/404)
 
 
 Task Tracker API – backend project in progress (branching lesson)
+
+
+
+
+
+
+
+
+
+GET /events: return a filtered list of all available events.	200 OK (Returns a list of event objects)	400 Bad Request (Invalid filter or pagination query parameters)
+POST /events:	create a new event with capacity, date, and location details.	201 Created (Returns the newly created event and Location header)	400 Bad Request (Malformed JSON or missing fields), 401 Unauthorized (Not logged in), 403 Forbidden (Lacks organizer permissions), 422 Unprocessable Entity (Validation errors, such as a past event date or negative capacity)
+GET /events/<id>:	retrieve the details and remaining capacity for a single event.	200 OK (Returns the matching event object)	400 Bad Request (Invalid ID format, if strict typing is enforced), 404 Not Found (No event exists with <id>)
+PATCH /events/<id>:	partially update an existing event's details, such as title or capacity.	200 OK (Returns the updated event object)	400 Bad Request (Malformed payload), 401 Unauthorized, 403 Forbidden (Caller does not own the event), 404 Not Found, 422 Unprocessable Entity (Invalid field values)
