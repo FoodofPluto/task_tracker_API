@@ -17,6 +17,9 @@ def create_app(config_name: str) -> Flask:
     print("create_app called, app:", app.name)
     migrate.init_app(app, db)
 
+    with app.app_context():
+        print("DB URL at startup:", db.engine.url)
+
     from . import models  # noqa: F401
     from .tasks.main import main_bp
     from .tasks.auth import auth_bp
