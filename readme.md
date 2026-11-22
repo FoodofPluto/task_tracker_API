@@ -71,8 +71,10 @@ Path	Method	Purpose	Visibility	Success	Errors (400/401/403/404)
 
 Task Tracker API – backend project in progress (branching lesson)
 
-
-
+## Authorization (Register, Login) ##
+Where auth lives: tasks/auth/__init__.py
+Login behavior: 200 + JWT; 401 + INVALID_CREDENTIALS
+JWT config keys: JWT_SECRET, JWT_LIFETIME_MINUTES
 
 
 

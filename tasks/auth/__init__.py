@@ -1,5 +1,6 @@
 
 from flask import Blueprint, jsonify, request, current_app
+from .decorators import token_required  # adjust import to your structure
 from ...models import User
 from ..extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,6 +9,8 @@ import jwt
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
@@ -95,3 +98,11 @@ def login():
     token = jwt.encode(payload, secret, algorithm="HS256")
 
     return jsonify({"token": token}), 200
+
+
+@tasks_bp.route("/", methods=["GET"])
+@token_required
+def list_tasks():
+    return jsonify({"message": "You reached a protected tasks route!"}), 200
+
+

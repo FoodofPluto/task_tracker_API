@@ -20,8 +20,10 @@ def create_app(config_name: str) -> Flask:
     from . import models  # noqa: F401
     from .tasks.main import main_bp
     from .tasks.auth import auth_bp
+    from .tasks.auth import tasks_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(tasks_bp)
 
     return app
