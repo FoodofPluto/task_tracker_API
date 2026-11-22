@@ -3,3 +3,5 @@ from flask_migrate import Migrate
 
 db = SQLAlchemy()
 migrate = Migrate()
+
+print("extensions.db id:", id(db))

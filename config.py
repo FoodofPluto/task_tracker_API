@@ -9,12 +9,16 @@ class Config:
     RATELIMIT_STORAGE_URI = "memory://"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-me")
+    JWT_LIFETIME_MINUTES = 60
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///dev.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-me")
+    JWT_LIFETIME_MINUTES = 60
 
 
 class TestingConfig(Config):

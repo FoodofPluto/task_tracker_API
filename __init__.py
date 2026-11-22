@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+
 def create_app(config_name: str) -> Flask:
     app = Flask(__name__)
 
@@ -12,11 +14,14 @@ def create_app(config_name: str) -> Flask:
     app.config.from_object(config_object)
 
     db.init_app(app)
+    print("create_app called, app:", app.name)
     migrate.init_app(app, db)
 
-    from .tasks import tasks_bp
-    app.register_blueprint(tasks_bp)
-    
     from . import models  # noqa: F401
+    from .tasks.main import main_bp
+    from .tasks.auth import auth_bp
+
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
 
     return app

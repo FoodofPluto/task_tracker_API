@@ -1,14 +1,19 @@
-from flask import Blueprint, jsonify, request
-from ..models import User
+
+from flask import Blueprint, jsonify, request, current_app
+from ...models import User
 from ..extensions import db
-from werkzeug.security import generate_password_hash
-from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
+import jwt
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
+    print("register called, current_app:", current_app.name)
+    print("db id in auth:", id(db))
+    ...
     data = request.get_json() or {}
     username = data.get("username")
     password = data.get("password")
@@ -50,3 +55,43 @@ def register():
         "username": user.username,
         "created_at": user.created_at.isoformat()
     }), 201
+
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    data = request.get_json() or {}
+    username = data.get("username")
+    password = data.get("password")
+    
+    
+    if not username or not password:
+        return {"error": "username and password are required"}, 400
+
+    user = User.query.filter_by(username=username).first()
+
+    # Generic error message – same for unknown user and wrong password
+    generic_error = {
+        "error": "INVALID_CREDENTIALS",
+        "message": "Invalid username or password"
+        }
+    if user is None:
+        return generic_error, 401
+
+    if not check_password_hash(user.password_hash, password):
+        return generic_error, 401
+
+    secret = current_app.config["JWT_SECRET"]
+    lifetime_minutes = current_app.config["JWT_LIFETIME_MINUTES"]
+
+    now = datetime.utcnow()
+    exp = now + timedelta(minutes=lifetime_minutes)
+
+    payload = {
+        "sub": str(user.id),  # subject must be string
+        "role": "user",       # simple fixed role for now
+        "exp": exp
+    }
+
+    token = jwt.encode(payload, secret, algorithm="HS256")
+
+    return jsonify({"token": token}), 200
