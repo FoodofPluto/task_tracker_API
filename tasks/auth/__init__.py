@@ -207,3 +207,35 @@ def update_me():
 @token_required
 def list_tasks():
     return jsonify({"message": "You reached a protected tasks route!"}), 200
+
+
+@auth_bp.route("/admin/ping", methods=["GET"])
+@token_required
+def admin_ping():
+    user = User.query.get(g.current_user_id)
+    if user is None:
+        return (
+            jsonify({
+                "error": "USER_NOT_FOUND",
+                "message": "User not found",
+            }),
+            404,
+        )
+
+    if user.role != "admin":
+        return (
+            jsonify({
+                "error": "FORBIDDEN",
+                "message": "Admin privileges required",
+            }),
+            403,
+        )
+
+    return (
+        jsonify({
+            "status": "ok",
+            "message": "Welcome, admin",
+            "user_id": user.id,
+        }),
+        200,
+    )
