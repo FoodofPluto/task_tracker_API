@@ -106,11 +106,11 @@ def get_commission(commission_id):
             "message": "Commission not found"
         }), 404
 
-    if commission.user_id != g.current_user_id:
-        return jsonify({
-            "error": "FORBIDDEN",
-            "message": "Unauthorized"
-        }), 403
+#    if commission.user_id != g.current_user_id:
+#        return jsonify({
+#            "error": "FORBIDDEN",
+#            "message": "Unauthorized"
+#        }), 403
 
     return jsonify({
         "id": commission.id,
@@ -121,3 +121,70 @@ def get_commission(commission_id):
         "created_at": commission.created_at.isoformat(),
         "user_id": commission.user_id,
     }), 200
+
+
+@main_bp.route("/commissions/<int:commission_id>", methods=["PATCH"])
+@token_required
+def update_commission(commission_id):
+    commission = db.session.get(Commission, commission_id)
+
+    if commission is None:
+        return jsonify({
+            "error": "NOT_FOUND",
+            "message": "Commission not found"
+        }), 404
+
+    data = request.get_json() or {}
+    allowed_fields = {"title", "status", "price", "due_date"}
+
+    if not any(field in data for field in allowed_fields):
+        return jsonify({
+            "error": "BAD_REQUEST",
+            "message": "At least one field (title or status) must be provided"
+        }), 400
+
+    if "title" in data:
+        commission.title = data["title"]
+
+    if "status" in data:
+        commission.status = data["status"]
+
+    if "price" in data:
+        commission.price = data["price"]
+
+    if "due_date" in data:
+        commission.due_date = data["due_date"]
+
+    db.session.commit()
+
+    return jsonify({
+        "id": commission.id,
+        "title": commission.title,
+        "status": commission.status,
+        "price": commission.price,
+        "due_date": commission.due_date.isoformat() if commission.due_date else None,
+        "created_at": commission.created_at.isoformat(),
+        "user_id": commission.user_id,
+    }), 200
+
+@main_bp.route("/commissions/<int:commission_id>", methods=["DELETE"])
+@token_required
+def delete_commission(commission_id):
+    commission = db.session.get(Commission, commission_id)
+
+    if commission is None:
+        return jsonify({
+            "error": "NOT_FOUND",
+            "message": "Commission not found"
+        }), 404
+
+#    if commission.user_id != g.current_user_id:
+#        return jsonify({
+#            "error": "FORBIDDEN",
+#            "message": "Unauthorized"
+#        }), 403
+
+    db.session.delete(commission)
+    db.session.commit()
+
+    return "", 204
