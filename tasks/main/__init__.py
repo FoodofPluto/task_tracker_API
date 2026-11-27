@@ -77,7 +77,45 @@ def create_commission():
 @main_bp.route("/commissions", methods=["GET"])
 @token_required
 def get_commissions():
-    commissions = Commission.query.filter_by(user_id=g.current_user_id).all()
+    page_raw = request.args.get("page", "1")
+    per_page_raw = request.args.get("per_page", "10")
+
+    details = {}
+
+    try:
+        page = int(page_raw)
+        if page < 1:
+            details["page"] = "Page must be a positive integer (>= 1)."
+    except ValueError:
+        details["page"] = "Page must be a valid integer."
+
+    try:
+        per_page = int(per_page_raw)
+        if per_page < 1 or per_page > 50:
+            details["per_page"] = "Per page must be an integer between 1 and 50."
+    except ValueError:
+        details["per_page"] = "Per page must be a valid integer."
+
+    if details:
+        return jsonify({
+            "error": "VALIDATION_ERROR",
+            "message": "Invalid query parameters",
+            "details": details
+        }), 400
+
+    base_query = Commission.query.filter_by(user_id=g.current_user_id)
+    total = base_query.count()
+    pages = (total + per_page - 1) // per_page
+
+    offset = (page - 1) * per_page
+
+    commissions = (
+        base_query
+        .order_by(Commission.id)
+        .limit(per_page)
+        .offset(offset)
+        .all()
+    )
 
     results = [
         {
@@ -92,7 +130,17 @@ def get_commissions():
         for commission in commissions
     ]
 
-    return jsonify(results), 200
+    return jsonify({
+        "items": results,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "pages": pages,
+        }
+    }), 200
+
+
 
 
 @main_bp.route("/commissions/<int:commission_id>", methods=["GET"])
