@@ -8,7 +8,7 @@ from ...models import User
 from .decorators import token_required  
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
-tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -208,12 +208,6 @@ def update_me():
         }),
         200,
     )
-
-
-@tasks_bp.route("/", methods=["GET"])
-@token_required
-def list_tasks():
-    return jsonify({"message": "You reached a protected tasks route!"}), 200
 
 
 @auth_bp.route("/admin/ping", methods=["GET"])

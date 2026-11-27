@@ -7,7 +7,6 @@ from ..auth.decorators import token_required
 main_bp = Blueprint("main", __name__)
 
 
-
 @main_bp.route("/health", methods=["GET"])
 def health_check():
     return jsonify({"status": "ok"}), 200
@@ -243,3 +242,8 @@ def delete_commission(commission_id):
     db.session.commit()
 
     return "", 204
+
+@main_bp.route("/tasks", methods=["GET"])
+@token_required
+def list_tasks():
+    return jsonify({"message": "You reached a protected tasks route!"}), 200
