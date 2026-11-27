@@ -106,11 +106,11 @@ def get_commission(commission_id):
             "message": "Commission not found"
         }), 404
 
-#    if commission.user_id != g.current_user_id:
-#        return jsonify({
-#            "error": "FORBIDDEN",
-#            "message": "Unauthorized"
-#        }), 403
+    if commission.user_id != g.current_user_id:
+        return jsonify({
+            "error": "FORBIDDEN",
+            "message": "Unauthorized"
+        }), 403
 
     return jsonify({
         "id": commission.id,
@@ -134,13 +134,19 @@ def update_commission(commission_id):
             "message": "Commission not found"
         }), 404
 
+    if commission.user_id != g.current_user_id:
+        return jsonify({
+            "error": "FORBIDDEN",
+            "message": "Unauthorized"
+        }), 403
+
     data = request.get_json() or {}
     allowed_fields = {"title", "status", "price", "due_date"}
 
     if not any(field in data for field in allowed_fields):
         return jsonify({
             "error": "BAD_REQUEST",
-            "message": "At least one field (title or status) must be provided"
+            "message": "At least one field (title, status, price, or due_date) must be provided"
         }), 400
 
     if "title" in data:
@@ -167,6 +173,7 @@ def update_commission(commission_id):
         "user_id": commission.user_id,
     }), 200
 
+
 @main_bp.route("/commissions/<int:commission_id>", methods=["DELETE"])
 @token_required
 def delete_commission(commission_id):
@@ -178,11 +185,11 @@ def delete_commission(commission_id):
             "message": "Commission not found"
         }), 404
 
-#    if commission.user_id != g.current_user_id:
-#        return jsonify({
-#            "error": "FORBIDDEN",
-#            "message": "Unauthorized"
-#        }), 403
+    if commission.user_id != g.current_user_id:
+        return jsonify({
+            "error": "FORBIDDEN",
+            "message": "Unauthorized"
+        }), 403
 
     db.session.delete(commission)
     db.session.commit()
