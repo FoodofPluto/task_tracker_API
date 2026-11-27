@@ -16,6 +16,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(32), default="user", nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    commissions = db.relationship("Commission", back_populates="user")
+
 
 class Commission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,3 +27,4 @@ class Commission(db.Model):
     due_date = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship("User", back_populates="commissions")
