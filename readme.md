@@ -92,3 +92,14 @@ Next step: enforce ownership consistently on read-by-id (and later update/delete
 
 ######
 
+ERROR OUTPUTS:
+400 = bad input (details present)
+
+401 = not authenticated (token/login issues)
+
+403 = authenticated but not allowed (wrong owner)
+
+404 = resource doesn’t exist (or is hidden on purpose)
+
+######
+
