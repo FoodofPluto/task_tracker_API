@@ -93,3 +93,31 @@ def get_commissions():
     ]
 
     return jsonify(results), 200
+
+
+@main_bp.route("/commissions/<int:commission_id>", methods=["GET"])
+@token_required
+def get_commission(commission_id):
+    commission = db.session.get(Commission, commission_id)
+
+    if commission is None:
+        return jsonify({
+            "error": "NOT_FOUND",
+            "message": "Commission not found"
+        }), 404
+
+    if commission.user_id != g.current_user_id:
+        return jsonify({
+            "error": "FORBIDDEN",
+            "message": "Unauthorized"
+        }), 403
+
+    return jsonify({
+        "id": commission.id,
+        "title": commission.title,
+        "status": commission.status,
+        "price": commission.price,
+        "due_date": commission.due_date.isoformat() if commission.due_date else None,
+        "created_at": commission.created_at.isoformat(),
+        "user_id": commission.user_id,
+    }), 200

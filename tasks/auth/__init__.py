@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..extensions import db
 from ...models import User
-from .decorators import token_required  # adjust import to your structure
+from .decorators import token_required  
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
