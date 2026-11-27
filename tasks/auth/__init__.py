@@ -73,21 +73,28 @@ def login():
     username = data.get("username")
     password = data.get("password")
 
-    if not username or not password:
-        return {"error": "username and password are required"}, 400
+    details = {}
+    if not isinstance(username, str) or not username.strip():
+        details["username"] = "Username is required and must be a non-empty string."
+    if not isinstance(password, str) or not password:
+        details["password"] = "Password is required."
 
-    user = User.query.filter_by(username=username).first()
+    if details:
+        return jsonify({
+            "error": "VALIDATION_ERROR",
+            "message": "Username and password are required",
+            "details": details,
+        }), 400
+
+    user = User.query.filter_by(username=username.strip()).first()
 
     # Generic error message – same for unknown user and wrong password
     generic_error = {
         "error": "INVALID_CREDENTIALS",
         "message": "Invalid username or password",
     }
-    if user is None:
-        return generic_error, 401
-
-    if not check_password_hash(user.password_hash, password):
-        return generic_error, 401
+    if user is None or not check_password_hash(user.password_hash, password):
+        return jsonify(generic_error), 401
 
     secret = current_app.config["JWT_SECRET"]
     lifetime_minutes = current_app.config["JWT_LIFETIME_MINUTES"]
@@ -97,7 +104,7 @@ def login():
 
     payload = {
         "sub": str(user.id),  # subject must be string
-        "role": "user",  # simple fixed role for now
+        "role": user.role,    # uses the role stored on your User model
         "exp": exp,
     }
 

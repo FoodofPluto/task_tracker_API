@@ -8,9 +8,17 @@ def token_required(f):
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
-            return jsonify({"error": "missing or invalid Authorization header"}), 401
+            return jsonify({
+                "error": "MISSING_TOKEN",
+                "message": "Missing or invalid Authorization header"
+            }), 401
 
-        token = auth_header.split(" ", 1)[1]
+        token = auth_header.split(" ", 1)[1].strip()
+        if not token:
+            return jsonify({
+                "error": "MISSING_TOKEN",
+                "message": "Missing or invalid Authorization header"
+            }), 401
 
         jwt_secret = current_app.config.get("JWT_SECRET")
         if not jwt_secret:
@@ -20,9 +28,15 @@ def token_required(f):
             payload = jwt.decode(token, jwt_secret, algorithms=["HS256"])
             g.current_user_id = int(payload["sub"])
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "token expired, please log in again"}), 401
+            return jsonify({
+                "error": "TOKEN_EXPIRED",
+                "message": "Token expired, please log in again"
+            }), 401
         except (jwt.PyJWTError, KeyError, TypeError, ValueError):
-            return jsonify({"error": "invalid token"}), 401
+            return jsonify({
+                "error": "INVALID_TOKEN",
+                "message": "Invalid token"
+            }), 401
 
         g.role = payload.get("role", "user")
 
