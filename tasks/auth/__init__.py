@@ -19,6 +19,7 @@ def register():
     data = request.get_json() or {}
     username = data.get("username")
     password = data.get("password")
+    role = data.get("role")
     details = {}
 
     if not username:
@@ -30,6 +31,7 @@ def register():
         details["password"] = "Password is required"
     elif len(password) < 8:
         details["password"] = "Password must be at least 8 characters long"
+
 
     if details:
         return (
@@ -54,7 +56,7 @@ def register():
         )
 
     password_hash = generate_password_hash(password)
-    user = User(username=username, password_hash=password_hash)
+    user = User(username=username, password_hash=password_hash, role=role)
     db.session.add(user)
     db.session.commit()
     return (
@@ -62,6 +64,7 @@ def register():
             "id": user.id,
             "username": user.username,
             "created_at": user.created_at.isoformat(),
+            "role": user.role
         }),
         201,
     )
